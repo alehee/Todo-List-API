@@ -33,14 +33,14 @@ namespace Todo_List_API.Controllers
         }
 
         [HttpPost("Login")]
-        public User? PostLogin(string username, string password)
+        public Response PostLogin(string username, string password)
         {
             using (var context = new TodoDbContext())
             {
                 if (context.Users.Where(u => u.Username == username && u.Password == password).Any())
-                    return context.Users.Where(u => u.Username == username && u.Password == password).Single();
+                    return new Response { Message = context.Users.Where(u => u.Username == username && u.Password == password).Single() };
 
-                return null;
+                return new Response { Type = "ERROR", Message = "Login data not valid" };
             }
         }
     }

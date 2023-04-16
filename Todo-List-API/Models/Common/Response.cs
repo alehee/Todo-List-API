@@ -3,6 +3,6 @@
     public class Response
     {
         public string Type { get; set; } = "SUCCESS";
-        public string? Message { get; set; } = null;
+        public object? Message { get; set; } = null;
     }
 }
