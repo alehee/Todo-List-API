@@ -23,6 +23,7 @@ app.MapControllers();
 
 using (var context = new TodoDbContext())
 {
+    context.Database.EnsureDeleted();
     context.Database.EnsureCreated();
 }
 
