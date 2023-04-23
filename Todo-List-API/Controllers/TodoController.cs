@@ -43,5 +43,24 @@ namespace Todo_List_API.Controllers
                 return new Response { Type = "ERROR", Message = "Login data not valid" };
             }
         }
+
+        [HttpPost("CategoryAdd")]
+        public Response PostCategoryAdd(string name, User user)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    context.Categories.Add(new Category { Name = name, Owner = user });
+                    context.SaveChanges();
+                    return new Response { Message = "Category created successfully!" };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while creating category" };
+                }
+            }
+        }
     }
 }
