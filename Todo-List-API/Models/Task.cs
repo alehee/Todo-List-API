@@ -7,8 +7,11 @@
         public string? Description { get; set; }
         public DateTime? Deadline { get; set; }
         public User? AssignedTo { get; set; }
+        public int? AssignedToId { get; set; }
         public List List { get; set; }
+        public int ListId { get; set; }
         public User CreatedBy { get; set; }
+        public int CreatedById { get; set; }
         public DateTime CreatedDate { get; } = DateTime.Now;
         public DateTime? DeletedAt { get; set; }
     }

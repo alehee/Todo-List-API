@@ -7,7 +7,7 @@ using Todo_List_API.Models.Common;
 namespace Todo_List_API.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class TodoController : ControllerBase
     {
         private readonly ILogger<TodoController> _logger;
@@ -45,13 +45,13 @@ namespace Todo_List_API.Controllers
         }
 
         [HttpPost("CategoryAdd")]
-        public Response PostCategoryAdd(string name, User user)
+        public Response PostCategoryAdd(string name, int userId)
         {
             using (var context = new TodoDbContext())
             {
                 try
                 {
-                    context.Categories.Add(new Category { Name = name, Owner = user });
+                    context.Categories.Add(new Category { Name = name, OwnerId = userId, Owner = context.Users.Where(u => u.Id == userId).Single() });
                     context.SaveChanges();
                     return new Response { Message = "Category created successfully!" };
                 }
@@ -60,6 +60,18 @@ namespace Todo_List_API.Controllers
                     System.Diagnostics.Debug.WriteLine(ex.ToString());
                     return new Response { Type = "ERROR", Message = "An error occured while creating category" };
                 }
+            }
+        }
+
+        [HttpGet("CategoryList")]
+        public Response GetCategoryList(int userId)
+        {
+            using (var context = new TodoDbContext())
+            {
+                if (context.Categories.Where(c => c.OwnerId == userId).Any())
+                    return new Response { Message = context.Categories.Where(c => c.OwnerId == userId).ToArray() };
+
+                return new Response { Type = "ERROR", Message = "No categories found for user" };
             }
         }
     }

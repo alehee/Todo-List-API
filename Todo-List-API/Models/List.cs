@@ -4,7 +4,9 @@
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public Category? Category { get; set; }
+        public User Owner { get; set; }
+        public int OwnerId { get; set; }
         public ICollection<Task> Tasks { get; set; }
+        public ICollection<ListCategory> AssignedUsers { get; set; }
     }
 }
