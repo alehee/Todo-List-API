@@ -12,7 +12,7 @@
         public int ListId { get; set; }
         public User CreatedBy { get; set; }
         public int CreatedById { get; set; }
-        public DateTime CreatedDate { get; } = DateTime.Now;
-        public DateTime? DeletedAt { get; set; }
+        public DateTime CreatedAt { get; } = DateTime.Now;
+        public DateTime? DeletedAt { get; set; } = null;
     }
 }

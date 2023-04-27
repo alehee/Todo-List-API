@@ -8,5 +8,7 @@
         public int OwnerId { get; set; }
         public ICollection<Task> Tasks { get; set; }
         public ICollection<ListCategory> AssignedUsers { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime? DeletedAt { get; set; } = null;
     }
 }

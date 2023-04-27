@@ -28,12 +28,14 @@ namespace Todo_List_API.Context
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.HasKey(x => x.Id);
+                entity.Property(x => x.Name).IsRequired();
                 entity.HasOne(x => x.Owner).WithMany(x => x.Categories).HasForeignKey(x => x.OwnerId).HasPrincipalKey(x => x.Id);
             });
 
             modelBuilder.Entity<Models.List>(entity =>
             {
                 entity.HasKey(x => x.Id);
+                entity.Property(x => x.Name).IsRequired();
                 entity.HasOne(x => x.Owner).WithMany(x => x.CreatedLists).HasForeignKey(x => x.OwnerId).HasPrincipalKey(x => x.Id);
             });
 
