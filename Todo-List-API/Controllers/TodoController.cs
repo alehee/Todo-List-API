@@ -210,6 +210,84 @@ namespace Todo_List_API.Controllers
         #endregion
 
         #region Task Queries
+        [HttpPost("TaskAdd")]
+        public Response PostTaskAdd(int userId, string name, int listId, string? description = null, string? deadlineStr = null, int? assignedId = null)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    context.Tasks.Add(new Models.Task { Name = name, ListId = listId, Description = description, Deadline = DateOnly.ParseExact(deadlineStr, "yyyy-MM-dd"), AssignedToId = assignedId, CreatedById = userId });
+                    context.SaveChanges();
+                    return new Response { Message = "Task created successfully!" };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while creating task" };
+                }
+            }
+        }
+
+        [HttpPost("TaskEdit")]
+        public Response PostTaskEdit(int taskId, string name, string? description = null, string? deadlineStr = null, int? assignedId = null)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    context.Tasks.Where(t => t.Id == taskId).ToList().ForEach(t => { t.Name = name; t.Description = description; t.Deadline = DateOnly.ParseExact(deadlineStr, "yyyy-MM-dd"); t.AssignedToId = assignedId; });
+                    context.SaveChanges();
+                    return new Response { Message = "Task edited successfully!" };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while editing task" };
+                }
+            }
+        }
+
+        [HttpPost("TaskDelete")]
+        public Response PostTaskDelete(int taskId)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    context.Tasks.Where(t => t.Id == taskId).ExecuteDelete();
+                    context.SaveChanges();
+                    return new Response { Message = "Task deleted successfully!" };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while deleting task" };
+                }
+            }
+        }
+
+        [HttpPost("TaskToggle")]
+        public Response PostTaskToggle(int taskId)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    if (context.Tasks.Where(t => t.Id == taskId).Single().CompletedAt is null)
+                        context.Tasks.Where(t => t.Id == taskId).Single().CompletedAt = DateTime.Now;
+                    else
+                        context.Tasks.Where(t => t.Id == taskId).Single().CompletedAt = null;
+                    context.SaveChanges();
+                    return new Response { Message = "Task deleted successfully!" };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while deleting task" };
+                }
+            }
+        }
 
         #endregion
     }
