@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.Text.Json;
 using Todo_List_API.Context;
 using Todo_List_API.Models;
@@ -30,7 +31,7 @@ namespace Todo_List_API.Controllers
                 context.Users.Add(new Models.User { Username = username, Password = password });
                 context.SaveChanges();
 
-                return new Response();
+                return new Response { Message = "User registered successfully" };
             }
         }
 
@@ -217,7 +218,11 @@ namespace Todo_List_API.Controllers
             {
                 try
                 {
-                    context.Tasks.Add(new Models.Task { Name = name, ListId = listId, Description = description, Deadline = DateOnly.ParseExact(deadlineStr, "yyyy-MM-dd"), AssignedToId = assignedId, CreatedById = userId });
+                    DateTime? dateTime = null;
+                    if (deadlineStr is not null)
+                        dateTime = DateTime.ParseExact(deadlineStr, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                    context.Tasks.Add(new Models.Task { Name = name, ListId = listId, Description = description, Deadline = dateTime, AssignedToId = assignedId, CreatedById = userId });
                     context.SaveChanges();
                     return new Response { Message = "Task created successfully!" };
                 }
@@ -236,7 +241,11 @@ namespace Todo_List_API.Controllers
             {
                 try
                 {
-                    context.Tasks.Where(t => t.Id == taskId).ToList().ForEach(t => { t.Name = name; t.Description = description; t.Deadline = DateOnly.ParseExact(deadlineStr, "yyyy-MM-dd"); t.AssignedToId = assignedId; });
+                    DateTime? dateTime = null;
+                    if (deadlineStr is not null)
+                        dateTime = DateTime.ParseExact(deadlineStr, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                    context.Tasks.Where(t => t.Id == taskId).ToList().ForEach(t => { t.Name = name; t.Description = description; t.Deadline = dateTime; t.AssignedToId = assignedId; });
                     context.SaveChanges();
                     return new Response { Message = "Task edited successfully!" };
                 }
@@ -279,12 +288,12 @@ namespace Todo_List_API.Controllers
                     else
                         context.Tasks.Where(t => t.Id == taskId).Single().CompletedAt = null;
                     context.SaveChanges();
-                    return new Response { Message = "Task deleted successfully!" };
+                    return new Response { Message = "Task toggled successfully!" };
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine(ex.ToString());
-                    return new Response { Type = "ERROR", Message = "An error occured while deleting task" };
+                    return new Response { Type = "ERROR", Message = "An error occured while toggling task" };
                 }
             }
         }
