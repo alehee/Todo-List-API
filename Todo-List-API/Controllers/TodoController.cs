@@ -299,5 +299,80 @@ namespace Todo_List_API.Controllers
         }
 
         #endregion
+
+        #region Get Queries
+        [HttpPost("GetCategories")]
+        public Response PostGetCategories(int userId)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    var categories = context.Categories.Where(c => c.OwnerId == userId).ToArray();
+                    return new Response { Message = categories };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while fetching categories" };
+                }
+            }
+        }
+
+        [HttpPost("GetListCategories")]
+        public Response PostGetListCategories(int userId)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    var listCategories = context.ListCategories.Where(lc => lc.UserId == userId).ToArray();
+                    return new Response { Message = listCategories };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while fetching listCategories" };
+                }
+            }
+        }
+
+        [HttpPost("GetLists")]
+        public Response PostGetLists(int userId, int? categoryId = null)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    var lcs = context.ListCategories.Where(lc => lc.UserId == userId && lc.CategoryId == categoryId).Select(lc => lc.ListId);
+                    var lists = context.Lists.Where(l => lcs.Contains(l.Id)).ToArray();
+                    return new Response { Message = lists };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while fetching lists" };
+                }
+            }
+        }
+
+        [HttpPost("GetTasks")]
+        public Response PostGetTasks(int listId)
+        {
+            using (var context = new TodoDbContext())
+            {
+                try
+                {
+                    var tasks = context.Tasks.Where(t => t.ListId == listId).ToArray();
+                    return new Response { Message = tasks };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    return new Response { Type = "ERROR", Message = "An error occured while fetching tasks" };
+                }
+            }
+        }
+        #endregion
     }
 }
