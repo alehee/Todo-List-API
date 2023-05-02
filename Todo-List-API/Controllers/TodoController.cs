@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Todo_List_API.Context;
 using Todo_List_API.Models;
@@ -308,7 +309,7 @@ namespace Todo_List_API.Controllers
             {
                 try
                 {
-                    var categories = context.Categories.Where(c => c.OwnerId == userId).ToArray();
+                    var categories = context.Categories.Where(c => c.OwnerId == userId && c.DeletedAt == null).ToArray();
                     return new Response { Message = categories };
                 }
                 catch (Exception ex)
@@ -345,7 +346,7 @@ namespace Todo_List_API.Controllers
                 try
                 {
                     var lcs = context.ListCategories.Where(lc => lc.UserId == userId && lc.CategoryId == categoryId).Select(lc => lc.ListId);
-                    var lists = context.Lists.Where(l => lcs.Contains(l.Id)).ToArray();
+                    var lists = context.Lists.Where(l => lcs.Contains(l.Id) && l.DeletedAt == null).ToArray();
                     return new Response { Message = lists };
                 }
                 catch (Exception ex)
@@ -363,7 +364,7 @@ namespace Todo_List_API.Controllers
             {
                 try
                 {
-                    var tasks = context.Tasks.Where(t => t.ListId == listId).ToArray();
+                    var tasks = context.Tasks.Where(t => t.ListId == listId && t.DeletedAt == null).ToArray();
                     return new Response { Message = tasks };
                 }
                 catch (Exception ex)
