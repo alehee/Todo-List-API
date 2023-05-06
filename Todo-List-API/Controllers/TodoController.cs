@@ -49,69 +49,9 @@ namespace Todo_List_API.Controllers
         }
         #endregion
 
-        #region Category Queries
-        [HttpPost("CategoryAdd")]
-        public Response PostCategoryAdd(string name, int userId)
-        {
-            using (var context = new TodoDbContext())
-            {
-                try
-                {
-                    context.Categories.Add(new Category { Name = name, OwnerId = userId, Owner = context.Users.Where(u => u.Id == userId).Single() });
-                    context.SaveChanges();
-                    return new Response { Message = "Category created successfully!" };
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.ToString());
-                    return new Response { Type = "ERROR", Message = "An error occured while creating category" };
-                }
-            }
-        }
-
-        [HttpPost("CategoryEdit")]
-        public Response PostCategoryEdit(int categoryId, string name)
-        {
-            using (var context = new TodoDbContext())
-            {
-                try
-                {
-                    context.Categories.Where(c => c.Id == categoryId && c.DeletedAt == null).Single().Name = name;
-                    context.SaveChanges();
-                    return new Response { Message = "Category edited successfully!" };
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.ToString());
-                    return new Response { Type = "ERROR", Message = "An error occured while editing category" };
-                }
-            }
-        }
-
-        [HttpPost("CategoryDelete")]
-        public Response PostCategoryDelete(int categoryId)
-        {
-            using (var context = new TodoDbContext())
-            {
-                try
-                {
-                    context.Categories.Where(c => c.Id == categoryId).Single().DeletedAt = DateTime.Now;
-                    context.ListCategories.Where(l => l.CategoryId == categoryId).ToList().ForEach(l => { l.Category = null; l.CategoryId = null; });
-                    context.SaveChanges();
-                    return new Response { Message = "Category deleted successfully!" };
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.ToString());
-                    return new Response { Type = "ERROR", Message = "An error occured while deleting category" };
-                }
-            }
-        }
-        #endregion
-
         #region List Queries
         [HttpPost("ListAdd")]
-        public Response PostListAdd(int userId, string name, int categoryId)
+        public Response PostListAdd(int userId, string name)
         {
             using (var context = new TodoDbContext())
             {
@@ -119,7 +59,7 @@ namespace Todo_List_API.Controllers
                 {
                     context.Lists.Add(new List { Name = name, OwnerId = userId });
                     context.SaveChanges();
-                    context.ListCategories.Add(new ListCategory { UserId = userId, ListId = context.Lists.Where(l => l.OwnerId == userId && l.Name == name).Single().Id, CategoryId = categoryId });
+                    context.ListCategories.Add(new ListCategory { UserId = userId, ListId = context.Lists.Where(l => l.OwnerId == userId && l.Name == name).Single().Id });
                     context.SaveChanges();
                     return new Response { Message = "List created successfully!" };
                 }
@@ -132,14 +72,13 @@ namespace Todo_List_API.Controllers
         }
 
         [HttpPost("ListEdit")]
-        public Response PostListEdit(int userId, int listId, string name, int categoryId)
+        public Response PostListEdit(int listId, string name)
         {
             using (var context = new TodoDbContext())
             {
                 try
                 {
                     context.Lists.Where(l => l.Id == listId).Single().Name = name;
-                    context.ListCategories.Where(l => l.ListId ==  listId && l.UserId == userId).Single().CategoryId = categoryId;
                     context.SaveChanges();
                     return new Response { Message = "List edited successfully!" };
                 }
@@ -302,24 +241,6 @@ namespace Todo_List_API.Controllers
         #endregion
 
         #region Get Queries
-        [HttpPost("GetCategories")]
-        public Response PostGetCategories(int userId)
-        {
-            using (var context = new TodoDbContext())
-            {
-                try
-                {
-                    var categories = context.Categories.Where(c => c.OwnerId == userId && c.DeletedAt == null).ToArray();
-                    return new Response { Message = categories };
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(ex.ToString());
-                    return new Response { Type = "ERROR", Message = "An error occured while fetching categories" };
-                }
-            }
-        }
-
         [HttpPost("GetListCategories")]
         public Response PostGetListCategories(int userId)
         {
@@ -339,13 +260,13 @@ namespace Todo_List_API.Controllers
         }
 
         [HttpPost("GetLists")]
-        public Response PostGetLists(int userId, int? categoryId = null)
+        public Response PostGetLists(int userId)
         {
             using (var context = new TodoDbContext())
             {
                 try
                 {
-                    var lcs = context.ListCategories.Where(lc => lc.UserId == userId && lc.CategoryId == categoryId).Select(lc => lc.ListId);
+                    var lcs = context.ListCategories.Where(lc => lc.UserId == userId).Select(lc => lc.ListId);
                     var lists = context.Lists.Where(l => lcs.Contains(l.Id) && l.DeletedAt == null).ToArray();
                     return new Response { Message = lists };
                 }

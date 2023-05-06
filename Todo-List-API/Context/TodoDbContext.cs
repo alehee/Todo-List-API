@@ -6,7 +6,6 @@ namespace Todo_List_API.Context
     public class TodoDbContext : DbContext
     {
         public virtual DbSet<User> Users { get; set; }
-        public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Models.List> Lists { get; set; }
         public virtual DbSet<Models.Task> Tasks { get; set; }
         public virtual DbSet<ListCategory> ListCategories { get; set; }
@@ -23,13 +22,6 @@ namespace Todo_List_API.Context
                 entity.HasKey(x => x.Id);
                 entity.Property(x => x.Username).IsRequired();
                 entity.Property(x => x.Password).IsRequired();
-            });
-
-            modelBuilder.Entity<Category>(entity =>
-            {
-                entity.HasKey(x => x.Id);
-                entity.Property(x => x.Name).IsRequired();
-                entity.HasOne(x => x.Owner).WithMany(x => x.Categories).HasForeignKey(x => x.OwnerId).HasPrincipalKey(x => x.Id);
             });
 
             modelBuilder.Entity<Models.List>(entity =>
@@ -56,7 +48,6 @@ namespace Todo_List_API.Context
                 });
                 entity.HasOne(x => x.User).WithMany(x => x.AssignedLists).HasForeignKey(x => x.UserId).HasPrincipalKey(x => x.Id);
                 entity.HasOne(x => x.List).WithMany(x => x.AssignedUsers).HasForeignKey(x => x.ListId).HasPrincipalKey(x => x.Id);
-                entity.HasOne(x => x.Category).WithMany(x => x.ListCategories).HasForeignKey(x => x.CategoryId).HasPrincipalKey(x => x.Id);
             });
         }
     }
